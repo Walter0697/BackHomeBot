@@ -1,0 +1,40 @@
+datasource db {
+  url      = env("DATABASE_URL_WITH_SCHEMA")
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  chatid    Int
+  createdAt DateTime @default(now())
+  username  String
+  activated Boolean
+}
+
+model Setting {
+  label     String   @unique
+  strValue  String   
+  boolValue Boolean
+}
+
+model BackHomeRecord {
+  id          Int      @id @default(autoincrement())
+  chatid      Int
+  message     String
+  targetdate  DateTime
+  createdAt   DateTime @default(now())
+}
+
+model UserPanel {
+  id          Int      @id @default(autoincrement())
+  chatid      Int 
+  background  String
+  name        String
+  panelid     Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
