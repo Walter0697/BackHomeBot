@@ -35,11 +35,13 @@ const upsertRecord = async (record) => {
     }
 }
 
-const today = async (chatId) => {
+const today = async (chatIds) => {
     const today = getToday().toDate()
-    const first = await prisma.backHomeRecord.findFirst({
+    const first = await prisma.backHomeRecord.findMany({
         where: {
-            chatid: chatId,
+            chatid: {
+                in: chatIds,
+            },
             targetdate: today,
         }
     })
