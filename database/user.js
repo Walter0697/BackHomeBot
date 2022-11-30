@@ -11,6 +11,18 @@ const getUserByChatId = async (chatid) => {
     return user
 }
 
+const getUsersByChatId = async (chatids) => {
+    const users = await prisma.user.findMany({
+        where: {
+            chatid: {
+                in: chatids,
+            }
+        }
+    })
+
+    return users
+}
+
 const createUser = async (username, chatid) => {
     const newUser = await prisma.user.create({
         data: {
@@ -24,4 +36,5 @@ const createUser = async (username, chatid) => {
 }
 
 exports.getUserByChatId = getUserByChatId
+exports.getUsersByChatId = getUsersByChatId
 exports.createUser = createUser

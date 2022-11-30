@@ -9,6 +9,7 @@ const { upsertPanel, getAllPanel } = require('./database/userpanel')
 const { today } = require('./database/backhomerecord')
 
 const express = require('express')
+const cors = require('cors')
 const bodyParser = require('body-parser')
 
 const app = express()
@@ -16,6 +17,8 @@ const port = process.env.SERVER_APP_PORT
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+
+app.use(cors())
 
 app.post('/panel', async (req, res) => {
   try {
@@ -45,7 +48,10 @@ app.get('/display', async (req, res) => {
     const chatids = panels.map(s => s.chatid)
     const result = await today(chatids)
 
-    res.json(result)
+    res.json({
+      result,
+      panels,
+    })
   } catch (err) {
     console.log(err)
     res.status(500).json(err)
