@@ -20,6 +20,8 @@ app.use(bodyParser.json())
 
 app.use(cors())
 
+app.use(express.static('public'))
+
 app.post('/panel', async (req, res) => {
   try {
     const body = req.body

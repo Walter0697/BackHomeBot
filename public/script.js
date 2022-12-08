@@ -13,24 +13,29 @@ const setMessageToPanel = ($section, title, message, background) => {
 $(document).ready(function() { 
     window.setInterval(() => {
         $.ajax({
-            url: 'http://localhost:1984/display',
+            url: backendLink,
             data: { 
-                'ids': [1, 2],
+                'ids': contentIds,
             },
             cache: false,
             type: "GET",
             success: function(response) {
-                //const data = response[0]
                 const list = response.result
+                const panels = response.panels
 
-                for (let i = 0; i < list.length; i++) {
-                    const panel = response.panels.find(s => s.chatid === list[i].chatid)
-                    if (i === 0) {
-                        setMessageToPanel($sectionOne, panel.name, list[i].message, panel.background)
+                for (let i = 0; i < panels.length; i++) {
+                    $currentSection = $sectionOne
+                    const panel = panels[i]
+                    const message = list.find(s => s.chatid === panel.chatid)
+                    let text = ''
+                    if (message) {
+                        text = message.message
                     }
+                    if (i !== 0) {
+                        $currentSection = $sectionTwo
+                    }
+                    setMessageToPanel($currentSection, panel.name, text, panel.background)
                 }
-                console.log(response)
-                //setMessageToPanel($sectionOne, 'testing', data.message)
             },
             error: function(xhr) {
         
