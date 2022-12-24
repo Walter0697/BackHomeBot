@@ -1,4 +1,4 @@
-const { bot } = require('./bot')
+const { bot, previousInteraction } = require('./bot')
 const constant = require('../utils/constant')
 
 const { getSetting } = require('../database/setting')

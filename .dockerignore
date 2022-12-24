@@ -1,0 +1,7 @@
+node_modules
+/preview
+/tmp
+example.env
+.env
+configuration.js
+migrations
