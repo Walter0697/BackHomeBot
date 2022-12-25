@@ -1,9 +1,10 @@
 const { bot, previousInteraction } = require('./bot')
 const constant = require('../utils/constant')
-const { createRecordDate, getWeeknameFromDate } = require('../utils/date')
+const { setZeroToDate, getWeeknameFromDate } = require('../utils/date')
 const dayjs = require('dayjs')
 const { getUserByChatId } = require('../database/user')
 const { upsertRecord } = require('../database/backhomerecord')
+const { nextSevenDays, displayKeyboard } = require('../utils/date')
 
 bot.onText(/\/tell/, async (msg, match) => {
 	const chatId = msg.chat.id
@@ -18,9 +19,19 @@ bot.onText(/\/tell/, async (msg, match) => {
 		state: constant.userState.SELECT_WEEK,
 	}
 
+	const w = displayKeyboard()
+	const selectDate =  constant.selectDate
+	const output = [[
+		w[0], w[1], w[2],
+	], [
+		w[3], w[4], w[5], w[6],
+	], [
+		selectDate,
+	]]
+
 	bot.sendMessage(msg.chat.id, 'Please select a day of week:', {
 		'reply_markup': {
-			'keyboard': constant.options.dayOfWeek,
+			'keyboard': output,
 		}
 	})
 })
@@ -46,25 +57,52 @@ bot.on('message', async (msg) => {
 				state: constant.userState.SELECT_DATE,
 			}
 			bot.sendMessage(msg.chat.id, 'Please type a date with format (YYYY-MM-DD)')
-		} else if (constant.weekdays.includes(msg.text)) {
-			previousInteraction[chatId] = {
-				state: constant.userState.TYPE_MESSAGE,
-				data: {
-					type: 'weekday',
-					value: msg.text,
-				}
-			}
-			bot.sendMessage(msg.chat.id, 'You selected: ' + msg.text + ', please type your message', {
-				'reply_markup': {
-					'keyboard': constant.options.backHomeChoice,
-				}
-			})
 		} else {
-			bot.sendMessage(msg.chat.id, 'Invalid reply, please select again:', {
-				'reply_markup': {
-					'keyboard': constant.options.dayOfWeek,
+			const textsplit = msg.text.split(' (')
+			let isValid = false
+			if (textsplit.length === 2) {
+				if (!constant.weekdays.includes(textsplit[0])) {
+					isValid = false
+				} else {
+					isValid = true
 				}
-			})
+
+				if (isValid) {
+					const selected = textsplit[0]
+
+					previousInteraction[chatId] = {
+						state: constant.userState.TYPE_MESSAGE,
+						data: {
+							type: 'weekday',
+							value: selected,
+						}
+					}
+					bot.sendMessage(msg.chat.id, 'You selected: ' + msg.text + ', please type your message', {
+						'reply_markup': {
+							'keyboard': constant.options.backHomeChoice,
+						}
+					})
+					return
+				}
+			} 
+			
+			if (!isValid) {
+				const w = displayKeyboard()
+				const selectDate =  constant.selectDate
+				const output = [[
+					w[0], w[1], w[2],
+				], [
+					w[3], w[4], w[5], w[6],
+				], [
+					selectDate,
+				]]
+
+				bot.sendMessage(msg.chat.id, 'Invalid reply, please select again:', {
+					'reply_markup': {
+						'keyboard': output,
+					}
+				})
+			}
 		}
 	} else if (currentState.state === constant.userState.SELECT_DATE) {
 		const message = msg.text
@@ -88,8 +126,12 @@ bot.on('message', async (msg) => {
 	} else if (currentState.state === constant.userState.TYPE_MESSAGE) {
 		if (currentState.data.type === 'weekday') {
 			try {
+				const availableDate = nextSevenDays()
 				const selectedWeekday = currentState.data.value
-				const selectedDate = createRecordDate(selectedWeekday)
+				
+				const selectedDateObj = availableDate.find(s => s.day === constant.weekNumReference[selectedWeekday])
+				const selectedDate = setZeroToDate(selectedDateObj.object)
+
 				const data = {
 					chatId,
 					targetDate: selectedDate.toDate(),

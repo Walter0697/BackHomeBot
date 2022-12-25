@@ -11,6 +11,7 @@ const { today } = require('./database/backhomerecord')
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const dayjs = require('dayjs')
 
 const app = express()
 const port = process.env.SERVER_APP_PORT
@@ -53,6 +54,7 @@ app.get('/display', async (req, res) => {
     res.json({
       result,
       panels,
+      now: dayjs().format('YYYY-MM-DD HH:mm:ss')
     })
   } catch (err) {
     console.log(err)

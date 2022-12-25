@@ -1,5 +1,6 @@
 let $sectionOne = null
 let $sectionTwo = null
+let $time = null
 
 const setMessageToPanel = ($section, title, message, background) => {
     const sectionTitle = $section.find('.section-title')
@@ -8,6 +9,10 @@ const setMessageToPanel = ($section, title, message, background) => {
     sectionTitle.text(title)
     sectionContent.text(message)
     $section.css('background-color', background)
+}
+
+const setTime = (display_time) => {
+    $time.text(display_time)
 }
 
 $(document).ready(function() { 
@@ -22,6 +27,9 @@ $(document).ready(function() {
             success: function(response) {
                 const list = response.result
                 const panels = response.panels
+                const now = response.now
+
+                setTime(now)
 
                 for (let i = 0; i < panels.length; i++) {
                     $currentSection = $sectionOne
@@ -41,8 +49,9 @@ $(document).ready(function() {
         
             }
         })
-    }, 5000)
+    }, 1000)
 
     $sectionOne = $('#section-1')
     $sectionTwo = $('#section-2') 
+    $time = $('#time')
 });
