@@ -2,13 +2,34 @@ let $sectionOne = null
 let $sectionTwo = null
 let $time = null
 
-const setMessageToPanel = ($section, title, message, background) => {
+const setMessageToPanel = ($section, title, message, displayDay, background) => {
     const sectionTitle = $section.find('.section-title')
     const sectionContent = $section.find('.section-content')
+    const secctionDate = $section.find('.section-date')
 
     sectionTitle.text(title)
     sectionContent.text(message)
+    secctionDate.text(displayDay)
     $section.css('background-color', background)
+}
+
+const setUpcomingMessage = ($section, upcomings) => {
+    upcomings.sort((a, b) => {
+        return dayjs(a.targetdate).isAfter(dayjs(b.targetdate))
+    })
+    const $sectionUpcoming = $section.find('.section-upcoming')
+    for (let i = 1; i <= 6; i++) {
+        const $currentUpcoming = $sectionUpcoming.find('.upcoming-' + i)
+
+        const index = i - 1
+        if (upcomings.length > index) {
+            const up = upcomings[index]
+            const text = `${dayjs(up.targetdate).format('YYYY-MM-DD')} : ${up.message}`
+            $currentUpcoming.text(text)
+        } else {
+            $currentUpcoming.text('')
+        }
+    }
 }
 
 const setTime = (display_time) => {
@@ -28,6 +49,7 @@ $(document).ready(function() {
                 const list = response.result
                 const panels = response.panels
                 const now = response.now
+                const upcoming = response.upcoming
 
                 setTime(now)
 
@@ -35,14 +57,18 @@ $(document).ready(function() {
                     $currentSection = $sectionOne
                     const panel = panels[i]
                     const message = list.find(s => s.chatid === panel.chatid)
+                    const upcomingMessages = upcoming.filter(s => s.chatid === panel.chatid)
                     let text = ''
+                    let displayDay = ''
                     if (message) {
                         text = message.message
+                        displayDay = `(${dayjs(message.targetDate).format('YYYY-MM-DD')})`
                     }
                     if (i !== 0) {
                         $currentSection = $sectionTwo
                     }
-                    setMessageToPanel($currentSection, panel.name, text, panel.background)
+                    setMessageToPanel($currentSection, panel.name, text, displayDay, panel.background)
+                    setUpcomingMessage($currentSection, upcomingMessages)
                 }
             },
             error: function(xhr) {

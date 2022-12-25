@@ -1,5 +1,5 @@
 const base = require('./base')
-const { getToday, createRecordDate, getWeeknameFromDate } = require('../utils/date')
+const { getToday, createRecordDate, nextSevenDays } = require('../utils/date')
 const constant = require('../utils/constant')
 const prisma = base.getPrisma()
 
@@ -49,6 +49,25 @@ const today = async (chatIds) => {
     return first
 }
 
+const upcoming6 = async (chatIds) => {
+    const today = getToday().toDate()
+    const day6 = getToday().add(7, 'day').toDate()
+
+    const result = await prisma.backHomeRecord.findMany({
+        where: {
+            chatid: {
+                in: chatIds,
+            },
+            targetdate: {
+                gt: today,
+                lte: day6,
+            }
+        }
+    })
+
+    return result
+}
+
 const thisweek = async (chatId) => {
     const weekNumReference = constant.weekNumReference
     let startName = null
@@ -91,3 +110,4 @@ exports.upsertRecord = upsertRecord
 exports.today = today
 exports.thisweek = thisweek
 exports.upcoming = upcoming
+exports.upcoming6 = upcoming6

@@ -6,7 +6,7 @@ require('./bot/feature')
 require('./bot/display')
 
 const { upsertPanel, getAllPanel } = require('./database/userpanel')
-const { today } = require('./database/backhomerecord')
+const { today, upcoming6 } = require('./database/backhomerecord')
 
 const express = require('express')
 const cors = require('cors')
@@ -50,10 +50,12 @@ app.get('/display', async (req, res) => {
     const panels = await getAllPanel(idInts)
     const chatids = panels.map(s => s.chatid)
     const result = await today(chatids)
+    const upcoming = await upcoming6(chatids)
 
     res.json({
       result,
       panels,
+      upcoming,
       now: dayjs().format('YYYY-MM-DD HH:mm:ss')
     })
   } catch (err) {
