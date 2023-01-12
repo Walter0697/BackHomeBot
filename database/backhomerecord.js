@@ -62,7 +62,10 @@ const upcoming6 = async (chatIds) => {
                 gt: today,
                 lte: day6,
             }
-        }
+        },
+        orderBy: {
+            targetdate: 'asc',
+        },
     })
 
     return result

@@ -42,12 +42,13 @@ body {
 }
 
 .section-content {
-    height: 30%;
+    height: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: 700;
-    font-size: 8vw;
+    font-size: 7vw;
+    text-align: center;
 }
 
 .section-date {
